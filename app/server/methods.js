@@ -36,7 +36,7 @@ Meteor.methods({
             match: false
         };
         if (onyxResult.score >= 34) {
-            var match = fingerprints[result.index];
+            var match = fingerprints[onyxResult.index];
             returnResult.match = match._id;
         }
         return returnResult;
@@ -52,13 +52,13 @@ Meteor.methods({
         var ftv = new Onyx.FingerprintTemplateVector();
         ftv.push_back(dbTpl);
         // Do verification
-        var result = Onyx.identify(ftv, reqTpl);
-        console.log("result: ", result);
+        var onyxResult = Onyx.identify(ftv, reqTpl);
+        console.log("result: ", onyxResult);
         var verified = false;
-        if (result.score >= 34) {
+        if (onyxResult.score >= 34) {
             console.log('Template Verified');
             verified = true;
         }
-        return {isVerified: verified, score: result.score};
+        return {isVerified: verified, score: onyxResult.score};
     }
 });
