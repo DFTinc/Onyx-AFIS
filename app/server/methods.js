@@ -17,21 +17,21 @@ Meteor.methods({
         return Fingerprints.insert(data);
     },
     '/onyx/identify': function (data) {
-        var OnyxApi = Meteor.npmRequire('onyx-node');
-        var onyxTemplate = new onyx.FingerprintTemplate(
+        var Onyx = Meteor.npmRequire('onyx-node');
+        var onyxTemplate = new Onyx.FingerprintTemplate(
             new Buffer(data.template, 'base64'), 100
         );
 
-        var ftv = new onyx.FingerprintTemplateVector();
+        var ftv = new Onyx.FingerprintTemplateVector();
         var fingerprints = Fingerprints.find({}).fetch();
         fingerprints.forEach(function (fingerprint, index) {
             var templateBuffer = new Buffer(fingerprint.template, 'base64');
-            var onyxTemplate = new onyx.FingerprintTemplate(templateBuffer, 100);
+            var onyxTemplate = new Onyx.FingerprintTemplate(templateBuffer, 100);
             ftv.push_back(onyxTemplate);
         });
 
         // Do identification
-        var onyxResult = onyx.identify(ftv, onyxTemplate);
+        var onyxResult = Onyx.identify(ftv, onyxTemplate);
         var returnResult = {
             match: false
         };
@@ -42,17 +42,17 @@ Meteor.methods({
         return returnResult;
     },
     '/onyx/verify': function (data) {
-        var OnyxApi = Meteor.npmRequire('onyx-node');
+        var Onyx = Meteor.npmRequire('onyx-node');
         var fingerprint = Fingerprints.findOne({_id: data.userId});
         if (!fingerprint) {
             throw new Meteor.Error("not-enrolled", "No fingerprint enrolled.");
         }
-        var dbTpl = new OnyxApi.FingerprintTemplate(new Buffer(fingerprint.template, 'base64'), 100);
-        var reqTpl = new OnyxApi.FingerprintTemplate(new Buffer(data.template, 'base64'), 100);
-        var ftv = new OnyxApi.FingerprintTemplateVector();
+        var dbTpl = new Onyx.FingerprintTemplate(new Buffer(fingerprint.template, 'base64'), 100);
+        var reqTpl = new Onyx.FingerprintTemplate(new Buffer(data.template, 'base64'), 100);
+        var ftv = new Onyx.FingerprintTemplateVector();
         ftv.push_back(dbTpl);
         // Do verification
-        var result = OnyxApi.identify(ftv, reqTpl);
+        var result = Onyx.identify(ftv, reqTpl);
         console.log("result: ", result);
         var verified = false;
         if (result.score >= 34) {
