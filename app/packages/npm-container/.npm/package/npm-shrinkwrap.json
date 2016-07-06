@@ -1,0 +1,10 @@
+{
+  "dependencies": {
+    "moment": {
+      "version": "2.13.0"
+    },
+    "onyx-node": {
+      "version": "4.0.0"
+    }
+  }
+}
