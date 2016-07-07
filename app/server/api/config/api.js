@@ -74,6 +74,12 @@ API = {
                                 error: error,
                                 message: "Error running onyx identification."
                             });
+                        } else if (result.match) {
+                            API.utility.response(context, 200, {
+                                "userId": result.match,
+                                "success": false,
+                                "message": "Duplicate fingerprint found."
+                            });
                         } else {
                             Meteor.call('/onyx/enroll', connection.data, function (error, result) {
                                 if (error) {
@@ -84,6 +90,7 @@ API = {
                                 } else {
                                     API.utility.response(context, 200, {
                                         "userId": result,
+                                        "success": true,
                                         "message": "Successfully enrolled fingerprint."
                                     });
                                 }
