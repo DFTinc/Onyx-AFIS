@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "description": "A Meteor server providing Onyx verification",
   "dependencies": {
-    "require": "^2.4.20"
+    "request": "^2.73.0"
   },
   "devDependencies": {},
   "scripts": {
