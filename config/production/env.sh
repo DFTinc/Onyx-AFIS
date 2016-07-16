@@ -7,4 +7,8 @@
 # export MONGO_URL="mongodb://localhost:27017/myapp-development"
 # export ROOT_URL="http://localhost:3000"
 
-export SAMPLE_VARIABLE="somevalue"
+export METEOR_SETTINGS=$(cat settings.json)
+export PORT="3330"
+export ROOT_URL="http://localhost:3330"
+export MOBILE_DDP_URL=$ROOT_URL
+export MONGO_URL="mongodb://127.0.0.1:27017/OnyxMeteor"
