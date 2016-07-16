@@ -16,7 +16,7 @@ var requestJson = {
 };
 
 request({
-    url: "http://localhost:3000/api/v1/onyx/enroll",
+    url: "http://localhost:3030/api/v1/onyx/enroll",
     method: "POST",
     json: true,   // <--Very important!!!
     body: requestJson
