@@ -1,0 +1,13 @@
+{
+  "name": "onyx-meteor",
+  "version": "0.0.1",
+  "description": "A Meteor server providing Onyx verification",
+  "dependencies": {
+    "require": "^2.4.20"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Matthew Wheatley"
+}

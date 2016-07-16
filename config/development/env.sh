@@ -8,8 +8,8 @@
 # export ROOT_URL="http://localhost:3000"
 
 export METEOR_SETTINGS=$(cat settings.json)
-export PORT="3000"
-export ROOT_URL="http://localhost:3000"
+export PORT="3030"
+export ROOT_URL="http://localhost:3030"
 export MOBILE_DDP_URL=$ROOT_URL
 export MONGO_URL="mongodb://127.0.0.1:27017/OnyxMeteor-dev"
 
