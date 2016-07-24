@@ -3,7 +3,7 @@
 #API REFERENCE
 
 ## ENROLL
-###/api/v1/onyx/enroll3
+###/api/v1/onyx/enroll
 
 **Required parameters**
 
@@ -158,4 +158,3 @@ body: { error:
      errorType: 'Meteor.Error' },
   message: 'Error executing onyx verification.' }
 ```
-
