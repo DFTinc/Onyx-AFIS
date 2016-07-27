@@ -11,12 +11,14 @@ var buf2base64 = buf2.toString('base64');
 
 
 var requestJson = {
-    api_key: "51f6b93bf5f20e192195e9ac9879fd98", // DataReveal OnyxMeteor-dev
+//    api_key: "51f6b93bf5f20e192195e9ac9879fd98", // DataReveal OnyxMeteor-dev
+    api_key: "f2599a82c7eb8bd383a47f836e63aaf2", // DataReveal OnyxMeteor  
     template: buf1base64
 };
 
 request({
-    url: "http://localhost:3030/api/v1/onyx/enroll",
+//    url: "http://localhost:3030/api/v1/onyx/enroll", // config/development/env.sh
+    url: "http://localhost:3330/api/v1/onyx/enroll", // config/production/env.sh
     method: "POST",
     json: true,   // <--Very important!!!
     body: requestJson
