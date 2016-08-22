@@ -2,7 +2,7 @@
  * Created by mjwheatley on 06/28/2016.
  */
 API = {
-    resources: {'enroll': true, 'verify': true},
+    resources: {'enroll': true, 'verify': true, 'identify': true},
     handleRequest: function (context, resource, method) {
         if (!API.resources[resource]) {
             return API.utility.response(context, 404, {message: "Resource not found"});
@@ -122,6 +122,42 @@ API = {
                             });
                         } else {
                             API.utility.response(context, 200, result);
+                        }
+                    });
+                } else {
+                    API.utility.response(context, 403, {
+                        error: 403,
+                        message: "POST calls must have valid fields passed in the request body in the correct formats."
+                    });
+                }
+            }
+        },
+        'identify': {
+            POST: function (context, connection) {
+                var hasData = API.utility.hasData(connection.data);
+                var validData = API.utility.validate(connection.data, {
+                    "template": String
+                });
+
+                if (hasData && validData) {
+                    Meteor.call('/onyx/identify', connection.data, function (error, result) {
+                        if (error) {
+                            console.log("Error running onyx identification: ", error);
+                            API.utility.response(context, 500, {
+                                error: error,
+                                message: "Error running onyx identification."
+                            });
+                        } else if (result.match) {
+                            API.utility.response(context, 200, {
+                                "userId": result.match,
+                                "success": true,
+                                "message": "Found a matching userId."
+                            });
+                        } else {
+                            API.utility.response(context, 200, {
+                                "success": false,
+                                "message": "No match found."
+                            });
                         }
                     });
                 } else {
