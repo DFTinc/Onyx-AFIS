@@ -1,5 +1,3 @@
-#node v0.10.41 REQUIRED
-
 #API REFERENCE
 
 ## ENROLL
@@ -65,6 +63,56 @@ The verify endpoint will perform a one to one match of the provided fingerprint 
 | isVerified  | boolean  | Result of the verification.    | 
 | score  | number  | The numerical score of the match result.  | 
 
+# Server Setup (Ubuntu 14.04LTS)
+
+##Install Node.js
+###node v0.10.41 REQUIRED
+
+```
+sudo npm cache clean -f
+sudo npm install -g n
+sudo n 0.10.41
+```
+
+##Install MongoDB https://docs.mongodb.com/v3.0/tutorial/install-mongodb-on-ubuntu/
+
+##Install MeteorJS
+
+```
+curl https://install.meteor.com/ | sh
+```
+
+##Install Forever
+```
+sudo npm install forever -g
+```
+
+##Clone the project
+```
+git clone https://
+```
+
+##Install the Onyx node module
+```
+cd ~/path/to/onyxmeteor/app
+
+npm install
+
+cd node_modules/onyx-node/
+```
+
+##Follow the instructions in onyx-node/README.md or https://www.npmjs.com/package/onyx-node
+###IDKit can be found at `~/path/to/onyxmeteor/bin/`
+
+##Verify onyx-node setup
+```
+cd ~/path/to/onyxmeteor/app/node_modules/onyx-node/sample/
+
+node onyx-verify-sample.js
+```
+
+
+
 # Build / Deploy
 
 ```
@@ -86,6 +134,18 @@ forever -a -l OnyxMeteor.log -o OnyxMeteorOut.log -e OnyxMeteorErrors.log start 
 
 ```
 
+# Restart Server
+
+```
+cd ~/path/to/onyxmeteor/config/production/
+
+source env.sh
+
+cd ../../build/bundle/
+
+forever -a -l OnyxMeteor.log -o OnyxMeteorOut.log -e OnyxMeteorErrors.log start main.js
+```
+
 # Verify deployment
 
 ```
@@ -100,9 +160,9 @@ db.api_keys.find().pretty()
 ```
 > db.api_keys.find().pretty()
 {
-	"_id" : "4BaSXiH2xHAzMy7nA",
-	"owner" : "8wBx8xzBET5q5shkX",
-	"key" : "51f6b93bf5f20e192195e9ac9879fd98"
+	"_id" : "4BaSXiH2xHAzMy7nP",
+	"owner" : "8wBx8xzBET5q5shkY",
+	"key" : "51f6b93bf5f20e192195e9bc9879fd98"
 }
 >
 ```
@@ -137,7 +197,7 @@ node enroll.js
 **Sample output**
 
 ```
-body: { userId: 'Y6qG46CQnfCcfJ2iJ',
+body: { userId: 'Y6qG46CQnfCxfJ2iJ',
   success: true,
   message: 'Successfully enrolled fingerprint.' }
 ```
@@ -149,7 +209,7 @@ body: { userId: 'Y6qG46CQnfCcfJ2iJ',
 Will return the userId of the existing matched fingerprint in the database.
 
 ```
-body: { userId: 'QPvKAADjaQD54NEXQ',
+body: { userId: 'QPvKAADjbQD54NEXQ',
   success: false,
   message: 'Duplicate fingerprint found.' }
 ```
