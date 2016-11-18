@@ -66,12 +66,12 @@ The verify endpoint will perform a one to one match of the provided fingerprint 
 # Server Setup (Ubuntu 14.04LTS)
 
 ##Install Node.js
-###node v0.10.41 REQUIRED
+###node v4.6.2 REQUIRED
 
 ```
 sudo npm cache clean -f
 sudo npm install -g n
-sudo n 0.10.41
+sudo n 4.6.2
 ```
 
 ##Install MongoDB https://docs.mongodb.com/v3.0/tutorial/install-mongodb-on-ubuntu/
