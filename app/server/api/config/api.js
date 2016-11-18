@@ -15,9 +15,13 @@ API = {
         }
     },
     connection: function (request) {
-        var getRequestContents = API.utility.getRequestContents(request),
-            apiKey = getRequestContents.api_key,
-            validUser = API.authentication(apiKey);
+        var getRequestContents = API.utility.getRequestContents(request);
+        if (request.method === "GET") {
+            return {error: 401, message: "This application does not accept GET requests."};
+        }
+
+        var apiKey = getRequestContents.api_key;
+        var validUser = API.authentication(apiKey);
 
         if (validUser) {
             // API Key no longer needed, remove from data and return
@@ -60,6 +64,12 @@ API = {
     },
     methods: {
         'enroll': {
+            GET: function (context, connection) {
+                console.log("GET enroll");
+                API.utility.response(context, 403, {
+                    "message": "This endpoint does not accept GET requests."
+                });
+            },
             POST: function (context, connection) {
                 var hasData = API.utility.hasData(connection.data);
                 var validData = API.utility.validate(connection.data, {
