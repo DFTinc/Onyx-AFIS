@@ -76,7 +76,7 @@ API = {
                     "template": String
                 });
 
-                if (hasData && validData) {
+                if (hasData && validData && connection.data.template.length > 0) {
                     Meteor.call('/onyx/identify', connection.data, function (error, result) {
                         if (error) {
                             console.log("Error running onyx identification: ", error);
@@ -161,6 +161,7 @@ API = {
                             API.utility.response(context, 200, {
                                 "userId": result.match,
                                 "success": true,
+                                "score": result.score,
                                 "message": "Found a matching userId."
                             });
                         } else {
