@@ -98,6 +98,14 @@ cd ~/path/to/onyxmeteor/app
 
 npm install
 
+I get the following after this step and the next step does not work: ubuntu@ip-172-31-28-9:~/onyxmeteor$ npm install
+npm WARN enoent ENOENT: no such file or directory, open '/home/ubuntu/onyxmeteor/package.json'
+npm WARN onyxmeteor No description
+npm WARN onyxmeteor No repository field.
+npm WARN onyxmeteor No README data
+npm WARN onyxmeteor No license field.
+
+
 cd node_modules/onyx-node/
 ```
 
