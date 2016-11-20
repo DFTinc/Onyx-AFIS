@@ -96,7 +96,12 @@ git clone https://
 ```
 cd ~/path/to/onyxmeteor/app
 
+**Make sure you're in the ../../app directory**
+
 npm install
+
+**Note: if node-gyp installation has errors, may need to do the following command**
+sudo apt-get install node-gyp
 
 cd node_modules/onyx-node/
 ```
