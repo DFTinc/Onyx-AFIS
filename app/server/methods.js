@@ -70,5 +70,38 @@ Meteor.methods({
         } catch (error) {
             throw new Meteor.Error("onyx-node-error", error);
         }
+    },'/onyx/vector': function (data) {
+        var Onyx = Meteor.npmRequire('onyx-node');
+        try {
+            var reqTemplate = new Onyx.FingerprintTemplate(
+                new Buffer(data.template, 'base64'), 100
+            );
+
+            var ftv = new Onyx.FingerprintTemplateVector();
+            var fingerprints = Fingerprints.find({ _id : { $in : data.fingerprintIds } }).fetch();
+            fingerprints.filter(function (fingerprint) {
+                    return fingerprint.template.length > 0; // drop all the empty templates
+                })
+                .forEach(function (fingerprint, index) {
+                    var templateBuffer = new Buffer(fingerprint.template, 'base64');
+                    var dbTemplate = new Onyx.FingerprintTemplate(templateBuffer, 100);
+                    dbTemplate.setCustomId(fingerprint._id);
+                    ftv.push_back(dbTemplate);
+                });
+
+            // Do identification
+            var onyxResult = Onyx.identify(ftv, reqTemplate);
+            var returnResult = {
+                match: false,
+                score: onyxResult.score
+            };
+            if (onyxResult.score >= 34) {
+                var match = ftv.get(onyxResult.index);
+                returnResult.match = match.getCustomId();
+            }
+            return returnResult;
+        } catch (error) {
+            throw new Meteor.Error("onyx-node-error", error);
+        }
     }
 });

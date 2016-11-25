@@ -178,6 +178,44 @@ API = {
                     });
                 }
             }
+        },
+        'vector': {
+            POST: function (context, connection) {
+                var hasData = API.utility.hasData(connection.data);
+                var validData = API.utility.validate(connection.data, {
+                    "template": String,
+                    "fingerprintIds": Array
+                });
+
+                if (hasData && validData) {
+                    Meteor.call('/onyx/vector', connection.data, function (error, result) {
+                        if (error) {
+                            console.log("Error running onyx vector verification: ", error);
+                            API.utility.response(context, 500, {
+                                error: error,
+                                message: "Error running onyx vector verification."
+                            });
+                        } else if (result.match) {
+                            API.utility.response(context, 200, {
+                                "userId": result.match,
+                                "success": true,
+                                "score": result.score,
+                                "message": "Found a matching userId."
+                            });
+                        } else {
+                            API.utility.response(context, 200, {
+                                "success": false,
+                                "message": "No match found."
+                            });
+                        }
+                    });
+                } else {
+                    API.utility.response(context, 403, {
+                        error: 403,
+                        message: "POST calls must have valid fields passed in the request body in the correct formats."
+                    });
+                }
+            }
         }
     }
 };
