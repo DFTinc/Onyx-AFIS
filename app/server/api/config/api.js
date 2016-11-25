@@ -2,7 +2,7 @@
  * Created by mjwheatley on 06/28/2016.
  */
 API = {
-    resources: {'enroll': true, 'verify': true, 'identify': true},
+    resources: {enroll: true, verify: true, identify: true, vector: true},
     handleRequest: function (context, resource, method) {
         if (!API.resources[resource]) {
             return API.utility.response(context, 404, {message: "Resource not found"});
