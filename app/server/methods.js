@@ -70,7 +70,8 @@ Meteor.methods({
         } catch (error) {
             throw new Meteor.Error("onyx-node-error", error);
         }
-    },'/onyx/vector': function (data) {
+    },
+    '/onyx/vector': function (data) {
         var Onyx = Meteor.npmRequire('onyx-node');
         try {
             var reqTemplate = new Onyx.FingerprintTemplate(
