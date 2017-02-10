@@ -2,10 +2,10 @@ Meteor.startup(function () {
     if (Meteor.users.find().count() == 0) {
         var users = [
             {
-                name: "DataReveal Admin",
-                username: "datarevealadmin",
+                name: "Administrator",
+                username: "afisadmin",
                 roles: ['admin'],
-                password: "d@t@r3v3@l@dm1n"
+                password: "@f1$@dm1n"
             }
         ];
 

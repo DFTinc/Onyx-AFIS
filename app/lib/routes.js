@@ -11,7 +11,7 @@ Router.configure({
 //  where: 'client'
 //});
 
-Router.route('/api/v1/onyx/:resource',
+Router.route('/api/v1/onyx/:option?/:resource',
     function () {
         this.response.setHeader('Access-Control-Allow-Origin', '*');
 
@@ -20,7 +20,7 @@ Router.route('/api/v1/onyx/:resource',
             this.response.setHeader('Access-Control-Allow-Methods', 'POST, PUT, GET, DELETE, OPTIONS');
             this.response.end('Set OPTIONS.');
         } else {
-            API.handleRequest(this, this.params.resource, this.request.method);
+            API.handleRequest(this, this.params, this.request.method);
         }
     }, {
         where: 'server'

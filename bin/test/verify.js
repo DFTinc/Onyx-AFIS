@@ -11,11 +11,11 @@ var buf2base64 = buf2.toString('base64');
 
 
 var requestJson = {
-    api_key: "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", // DataReveal OnyxMeteor-dev
-    //api_key: "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", // DataReveal OnyxMeteor
+    api_key: "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", // OnyxAFIS-dev
+    //api_key: "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", // OnyxAFIS
     template: buf1base64,
-    userId: "xxxxxxxxxxxxxxxxx" // dev
-    //userId: "xxxxxxxxxxxxxxxxx" // prod
+    fingerprintId: "xxxxxxxxxxxxxxxxx" // dev
+    //fingerprintId: "xxxxxxxxxxxxxxxxx" // prod
 };
 
 request({

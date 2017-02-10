@@ -11,8 +11,8 @@ var buf2base64 = buf2.toString('base64');
 
 
 var requestJson = {
-    api_key: "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", // OnyxMeteor-dev
-    //api_key: "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", // OnyxMeteor
+    api_key: "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", // OnyxAFIS-dev
+    //api_key: "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", // OnyxAFIS
     template: buf1base64
 };
 
