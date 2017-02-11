@@ -239,7 +239,8 @@ API = {
                             } else {
                                 if (result.nfiqScore > 3) {
                                     API.utility.response(context, 422, {
-                                        message: "Insufficient image quality."
+                                        message: "Insufficient image quality.",
+                                        nfiqScore: result.nfiqScore
                                     });
                                 } else {
                                     // Pyramid the image
@@ -359,7 +360,8 @@ API = {
                             } else {
                                 if (result.nfiqScore > 3) {
                                     API.utility.response(context, 422, {
-                                        message: "Insufficient image quality."
+                                        message: "Insufficient image quality.",
+                                        nfiqScore: result.nfiqScore
                                     });
                                 } else {
                                     // Pyramid the image
@@ -450,7 +452,8 @@ API = {
                             } else {
                                 if (result.nfiqScore > 3) {
                                     API.utility.response(context, 422, {
-                                        message: "Insufficient image quality."
+                                        message: "Insufficient image quality.",
+                                        nfiqScore: result.nfiqScore
                                     });
                                 } else {
                                     // Pyramid the image
@@ -543,7 +546,8 @@ API = {
                             } else {
                                 if (result.nfiqScore > 3) {
                                     API.utility.response(context, 422, {
-                                        message: "Insufficient image quality."
+                                        message: "Insufficient image quality.",
+                                        nfiqScore: result.nfiqScore
                                     });
                                 } else {
                                     // Pyramid the image
