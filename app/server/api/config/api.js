@@ -469,7 +469,8 @@ API = {
                                             var fingerprintTemplateArray = [];
                                             imagePyramid.forEach(function (wsqImage) {
                                                 try {
-                                                    var fingerprintTemplate = Meteor.call('/onyx/wsq/generateFingerprintTemplate', wsqImage);
+                                                    var fingerprintTemplate = Meteor.call(
+                                                        '/onyx/wsq/generateFingerprintTemplate', wsqImage);
                                                     fingerprintTemplateArray.push(fingerprintTemplate.data);
                                                 } catch (e) {
                                                     console.log("Error generating template from wsq image: ", e);
@@ -484,10 +485,12 @@ API = {
                                             for (var i = 0; i < fingerprintTemplateArray.length; i++) {
                                                 var fingerprintData = fingerprintTemplateArray[i];
                                                 try {
+                                                    console.log("Checking probe image pyramid fingerprint template at index: ", i);
                                                     var result = Meteor.call('/onyx/vector', {
                                                         template: fingerprintData,
                                                         fingerprintIds: connection.data.fingerprintIds
                                                     });
+                                                    console.log("match result: ", result);
                                                     if (result.match) {
                                                         match = result;
                                                         break;
@@ -499,20 +502,23 @@ API = {
                                                         message: "Error executing onyx vector verification."
                                                     });
                                                 }
+                                            }
 
-                                                if (match) {
-                                                    return API.utility.response(context, 200, {
-                                                        fingerprintId: match.match,
-                                                        success: true,
-                                                        score: match.score,
-                                                        message: "Found a matching fingerprint."
-                                                    });
-                                                } else {
-                                                    API.utility.response(context, 200, {
-                                                        success: false,
-                                                        message: "No match found."
-                                                    });
-                                                }
+                                            console.log("match: ", match);
+                                            if (match) {
+                                                console.log("Found a matching fingerprint.");
+                                                return API.utility.response(context, 200, {
+                                                    fingerprintId: match.match,
+                                                    success: true,
+                                                    score: match.score,
+                                                    message: "Found a matching fingerprint."
+                                                });
+                                            } else {
+                                                console.log("No matching fingerprints");
+                                                API.utility.response(context, 200, {
+                                                    success: false,
+                                                    message: "No match found."
+                                                });
                                             }
                                         }
                                     });
@@ -596,9 +602,9 @@ API = {
                                                         message: "Error running onyx verification."
                                                     });
                                                 }
-
-                                                API.utility.response(context, 200, verifyResult);
                                             }
+
+                                            API.utility.response(context, 200, verifyResult);
                                         }
                                     });
                                 }
