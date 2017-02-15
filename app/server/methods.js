@@ -119,6 +119,7 @@ Meteor.methods({
                 nfiqScore: nfiqMetrics.nfiqScore,
                 mlpScore: nfiqMetrics.mlpScore
             };
+            console.log("image quality: ", response);
             return response;
         } catch (error) {
             throw new Meteor.Error("onyx-node-error", error);
@@ -133,8 +134,9 @@ Meteor.methods({
         try {
             // Pyramid Image
             var srcImage = Onyx.wsqToMat(new Buffer(params.wsqImage, 'base64'));
-            var scales = [90, 100, 110];
-            var imagePyramid = onyx.pyramidImage(srcImage, scales);
+            var scales = [0.9, 1.0, 1.1];
+            var imagePyramid = Onyx.pyramidImage(srcImage, scales);
+            console.log("Successfully created image pyramid");
 
             var response = imagePyramid.map(function (mat) {
                 return Onyx.matToWsq(mat).toString('base64');
@@ -147,8 +149,8 @@ Meteor.methods({
     '/onyx/wsq/generateFingerprintTemplate': function (wsqImage) {
         var Onyx = Meteor.npmRequire('onyx-node');
         try {
-            var ft = Onyx.generateFingerprintTemplate(wsqImage);
-
+            var srcImage = Onyx.wsqToMat(new Buffer(wsqImage, 'base64'));
+            var ft = Onyx.generateFingerprintTemplate(srcImage);
             var response = {
                 fingerLocation: ft.getFingerLocation(),
                 quality: ft.getQuality(),
