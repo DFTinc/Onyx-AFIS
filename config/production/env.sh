@@ -8,7 +8,7 @@
 # export ROOT_URL="http://localhost:3000"
 
 export METEOR_SETTINGS=$(cat settings.json)
-export PORT="3330"
-export ROOT_URL="http://localhost:3330"
+export PORT="6030"
+export ROOT_URL="http://localhost:6030"
 export MOBILE_DDP_URL=$ROOT_URL
 export MONGO_URL="mongodb://127.0.0.1:27017/OnyxAFIS"
