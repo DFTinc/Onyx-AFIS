@@ -237,7 +237,7 @@ API = {
                                     message: "Error computing image NFIQ."
                                 });
                             } else {
-                                if (result.nfiqScore > 3) {
+                                if (result.nfiqScore > 4) {
                                     API.utility.response(context, 422, {
                                         message: "Insufficient image quality.",
                                         nfiqScore: result.nfiqScore
@@ -358,7 +358,7 @@ API = {
                                     message: "Error computing image NFIQ."
                                 });
                             } else {
-                                if (result.nfiqScore > 3) {
+                                if (result.nfiqScore > 4) {
                                     API.utility.response(context, 422, {
                                         message: "Insufficient image quality.",
                                         nfiqScore: result.nfiqScore
@@ -450,7 +450,8 @@ API = {
                                     message: "Error computing image NFIQ."
                                 });
                             } else {
-                                if (result.nfiqScore > 3) {
+                                console.log("NFIQ Score: ", result.nfiqScore);
+                                if (result.nfiqScore > 4) {
                                     API.utility.response(context, 422, {
                                         message: "Insufficient image quality.",
                                         nfiqScore: result.nfiqScore
@@ -544,7 +545,7 @@ API = {
                                     message: "Error computing image NFIQ."
                                 });
                             } else {
-                                if (result.nfiqScore > 3) {
+                                if (result.nfiqScore > 4) {
                                     API.utility.response(context, 422, {
                                         message: "Insufficient image quality.",
                                         nfiqScore: result.nfiqScore
