@@ -116,6 +116,7 @@ Meteor.methods({
             var nfiqMetrics = Onyx.computeNfiq(mat, params.ppi || 500, params.opts || 0);
 
             var response = {
+                wsqMat: mat,
                 nfiqScore: nfiqMetrics.nfiqScore,
                 mlpScore: nfiqMetrics.mlpScore
             };
@@ -157,6 +158,98 @@ Meteor.methods({
                 data: ft.getData().toString('base64')
             };
             return response;
+        } catch (error) {
+            throw new Meteor.Error("onyx-node-error", error);
+        }
+    },
+    '/onyx/wsq/mat/generateFingerprintTemplate': function (wsqMat) {
+        var Onyx = Meteor.npmRequire('onyx-node');
+        try {
+            var ft = Onyx.generateFingerprintTemplate(wsqMat);
+            var response = {
+                fingerLocation: ft.getFingerLocation(),
+                quality: ft.getQuality(),
+                data: ft.getData().toString('base64')
+            };
+            return response;
+        } catch (error) {
+            throw new Meteor.Error("onyx-node-error", error);
+        }
+    },
+    '/onyx/wsq/mat/pyramid/identify': function (wsqMat) {
+        var Onyx = Meteor.npmRequire('onyx-node');
+        try {
+            var ftv = new Onyx.FingerprintTemplateVector();
+            var fingerprints = Fingerprints.find({}).fetch();
+            fingerprints.filter(function (fingerprint) {
+                return fingerprint.template.length > 0; // drop all the empty templates
+            }).forEach(function (fingerprint, index) {
+                var templateBuffer = new Buffer(fingerprint.template, 'base64');
+                var dbTemplate = new Onyx.FingerprintTemplate(templateBuffer, 100);
+                dbTemplate.setCustomId(fingerprint._id);
+                ftv.push_back(dbTemplate);
+            });
+
+            // Do identification
+            var onyxResult = Onyx.pyramidIdentify(ftv, wsqMat, [0.7, 0.84, 0.98, 1.12, 1.26, 1.4]);
+            var returnResult = {
+                match: false,
+                score: onyxResult.score
+            };
+            if (onyxResult.score >= 34) {
+                var match = ftv.get(onyxResult.index);
+                returnResult.match = match.getCustomId();
+            }
+            return returnResult;
+        } catch (error) {
+            throw new Meteor.Error("onyx-node-error", error);
+        }
+    },
+    '/onyx/wsq/mat/pyramid/vector': function (data) {
+        var Onyx = Meteor.npmRequire('onyx-node');
+        try {
+            var ftv = new Onyx.FingerprintTemplateVector();
+            var fingerprints = Fingerprints.find({_id: {$in: data.fingerprintIds}}).fetch();
+            fingerprints.filter(function (fingerprint) {
+                return fingerprint.template.length > 0; // drop all the empty templates
+            }).forEach(function (fingerprint, index) {
+                var templateBuffer = new Buffer(fingerprint.template, 'base64');
+                var dbTemplate = new Onyx.FingerprintTemplate(templateBuffer, 100);
+                dbTemplate.setCustomId(fingerprint._id);
+                ftv.push_back(dbTemplate);
+            });
+
+            // Do identification
+            var onyxResult = Onyx.pyramidIdentify(ftv, data.wsqMat, [0.7, 0.84, 0.98, 1.12, 1.26, 1.4]);
+            var returnResult = {
+                match: false,
+                score: onyxResult.score
+            };
+            if (onyxResult.score >= 34) {
+                var match = ftv.get(onyxResult.index);
+                returnResult.match = match.getCustomId();
+            }
+            return returnResult;
+        } catch (error) {
+            throw new Meteor.Error("onyx-node-error", error);
+        }
+    },
+    '/onyx/wsq/mat/pyramid/verify': function (data) {
+        var Onyx = Meteor.npmRequire('onyx-node');
+        try {
+            var fingerprint = Fingerprints.findOne({_id: data.fingerprintId});
+            if (!fingerprint) {
+                throw new Meteor.Error("not-enrolled", "No fingerprint enrolled.");
+            }
+            var dbTpl = new Onyx.FingerprintTemplate(new Buffer(fingerprint.template, 'base64'), 100);
+            // Do verification
+            var onyxScore = Onyx.pyramidVerify(dbTpl, data.wsqMat, [0.7, 0.84, 0.98, 1.12, 1.26, 1.4]);
+            var verified = false;
+            if (onyxScore >= 34) {
+                console.log('Template Verified');
+                verified = true;
+            }
+            return {isVerified: verified, score: onyxScore};
         } catch (error) {
             throw new Meteor.Error("onyx-node-error", error);
         }

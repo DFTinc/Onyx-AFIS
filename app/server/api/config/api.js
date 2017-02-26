@@ -243,93 +243,54 @@ API = {
                                         nfiqScore: result.nfiqScore
                                     });
                                 } else {
-                                    // Pyramid the image
-                                    Meteor.call('/onyx/wsq/pyramidImage', connection.data,
-                                        function (error, imagePyramid) {
-                                            if (error) {
-                                                console.log("Error running onyx identification: ", error);
-                                                API.utility.response(context, 500, {
-                                                    error: error,
-                                                    message: "Error creating image pyramid"
+                                    var wsqMat = result.wsqMat;
+                                    Meteor.call('/onyx/wsq/mat/pyramid/identify', wsqMat, function (error, result) {
+                                        if (error) {
+                                            console.log("Error running onyx pyramid identification: ", error);
+                                            API.utility.response(context, 500, {
+                                                error: error,
+                                                message: "Error running onyx pyramid identification."
+                                            });
+                                        } else if (result.match) {
+                                            API.utility.response(context, 200, {
+                                                fingerprintId: result.match,
+                                                success: false,
+                                                message: "Duplicate fingerprint found."
+                                            });
+                                        } else {
+                                            // No duplicate found, enroll image
+                                            var template;
+                                            try {
+                                                template = Meteor.call(
+                                                    '/onyx/wsq/mat/generateFingerprintTemplate', wsqMat);
+                                            } catch (e) {
+                                                console.log("Error generating template from wsq image: ", e);
+                                                return API.utility.response(context, 500, {
+                                                    error: e,
+                                                    message: "Error generating template from wsq image."
                                                 });
-                                            } else {
-                                                // Perform deduplication
-                                                var fingerprintTemplateArray = [];
-                                                imagePyramid.forEach(function (wsqImage) {
-                                                    try {
-                                                        var fingerprintTemplate = Meteor.call(
-                                                            '/onyx/wsq/generateFingerprintTemplate', wsqImage);
-                                                        fingerprintTemplateArray.push(fingerprintTemplate.data);
-                                                    } catch (e) {
-                                                        console.log("Error generating template from wsq image: ", e);
-                                                        return API.utility.response(context, 500, {
-                                                            error: e,
-                                                            message: "Error generating template from wsq image."
-                                                        });
-                                                    }
-                                                });
-
-                                                var match;
-                                                for (var i = 0; i < fingerprintTemplateArray.length; i++) {
-                                                    var fingerprintData = fingerprintTemplateArray[i];
-                                                    try {
-                                                        var result = Meteor.call('/onyx/identify', {
-                                                            template: fingerprintData
-                                                        });
-                                                        if (result.match) {
-                                                            match = result;
-                                                            break;
-                                                        }
-                                                    } catch (e) {
-                                                        console.log("Error running onyx identification: ", error);
-                                                        return API.utility.response(context, 500, {
-                                                            error: e,
-                                                            message: "Error running onyx identification."
-                                                        });
-                                                    }
-                                                }
-
-                                                if (match) {
-                                                    return API.utility.response(context, 200, {
-                                                        fingerprintId: match.match,
-                                                        success: false,
-                                                        message: "Duplicate fingerprint found."
-                                                    });
-                                                }
-
-                                                // No duplicate found, enroll image
-                                                var template;
-                                                try {
-                                                    template = Meteor.call('/onyx/wsq/generateFingerprintTemplate',
-                                                        connection.data.wsqImage);
-                                                } catch (e) {
-                                                    console.log("Error generating template from wsq image: ", e);
-                                                    return API.utility.response(context, 500, {
-                                                        error: e,
-                                                        message: "Error generating template from wsq image."
-                                                    });
-                                                }
-
-                                                if (template) {
-                                                    Meteor.call('/onyx/enroll', {
-                                                        template: template.data
-                                                    }, function (error, result) {
-                                                        if (error) {
-                                                            API.utility.response(context, 500, {
-                                                                error: error,
-                                                                message: "Error enrolling fingerprint template."
-                                                            });
-                                                        } else {
-                                                            API.utility.response(context, 200, {
-                                                                fingerprintId: result,
-                                                                success: true,
-                                                                message: "Successfully enrolled fingerprint."
-                                                            });
-                                                        }
-                                                    });
-                                                }
                                             }
-                                        });
+
+                                            if (template) {
+                                                Meteor.call('/onyx/enroll', {
+                                                    template: template.data
+                                                }, function (error, result) {
+                                                    if (error) {
+                                                        API.utility.response(context, 500, {
+                                                            error: error,
+                                                            message: "Error enrolling fingerprint template."
+                                                        });
+                                                    } else {
+                                                        API.utility.response(context, 200, {
+                                                            fingerprintId: result,
+                                                            success: true,
+                                                            message: "Successfully enrolled fingerprint."
+                                                        });
+                                                    }
+                                                });
+                                            }
+                                        }
+                                    });
                                 }
                             }
                         });
@@ -364,61 +325,26 @@ API = {
                                         nfiqScore: result.nfiqScore
                                     });
                                 } else {
-                                    // Pyramid the image
-                                    Meteor.call('/onyx/wsq/pyramidImage', connection.data, function (error, imagePyramid) {
+                                    var wsqMat = result.wsqMat;
+                                    Meteor.call('/onyx/wsq/mat/pyramid/identify', wsqMat, function (error, result) {
                                         if (error) {
-                                            console.log("Error running onyx identification: ", error);
+                                            console.log("Error running onyx pyramid identification: ", error);
                                             API.utility.response(context, 500, {
                                                 error: error,
-                                                message: "Error creating image pyramid."
+                                                message: "Error running onyx pyramid identification."
+                                            });
+                                        } else if (result.match) {
+                                            API.utility.response(context, 200, {
+                                                fingerprintId: result.match,
+                                                success: true,
+                                                score: result.score,
+                                                message: "Found a matching fingerprint."
                                             });
                                         } else {
-                                            // Perform deduplication
-                                            var fingerprintTemplateArray = [];
-                                            imagePyramid.forEach(function (wsqImage) {
-                                                try {
-                                                    var fingerprintTemplate = Meteor.call('/onyx/wsq/generateFingerprintTemplate', wsqImage);
-                                                    fingerprintTemplateArray.push(fingerprintTemplate.data);
-                                                } catch (e) {
-                                                    console.log("Error generating template from wsq image: ", e);
-                                                    return API.utility.response(context, 500, {
-                                                        error: e,
-                                                        message: "Error generating template from wsq image."
-                                                    });
-                                                }
+                                            API.utility.response(context, 200, {
+                                                success: false,
+                                                message: "No match found."
                                             });
-
-                                            var match;
-                                            for (var i = 0; i < fingerprintTemplateArray.length; i++) {
-                                                var fingerprintData = fingerprintTemplateArray[i];
-                                                try {
-                                                    var result = Meteor.call('/onyx/identify', {template: fingerprintData});
-                                                    if (result.match) {
-                                                        match = result;
-                                                        break;
-                                                    }
-                                                } catch (e) {
-                                                    console.log("Error running onyx identification: ", error);
-                                                    return API.utility.response(context, 500, {
-                                                        error: e,
-                                                        message: "Error running onyx identification."
-                                                    });
-                                                }
-                                            }
-
-                                            if (match) {
-                                                return API.utility.response(context, 200, {
-                                                    fingerprintId: match.match,
-                                                    success: true,
-                                                    score: match.score,
-                                                    message: "Found a matching fingerprint."
-                                                });
-                                            } else {
-                                                API.utility.response(context, 200, {
-                                                    success: false,
-                                                    message: "No match found."
-                                                });
-                                            }
                                         }
                                     });
                                 }
@@ -457,69 +383,26 @@ API = {
                                         nfiqScore: result.nfiqScore
                                     });
                                 } else {
-                                    // Pyramid the image
-                                    Meteor.call('/onyx/wsq/pyramidImage', connection.data, function (error, imagePyramid) {
+                                    connection.data.wsqMat = result.wsqMat;
+                                    Meteor.call('/onyx/wsq/mat/pyramid/vector', connection.data, function (error, result) {
                                         if (error) {
-                                            console.log("Error running onyx identification: ", error);
+                                            console.log("Error running onyx wsq mat pyramid vector verification: ", error);
                                             API.utility.response(context, 500, {
                                                 error: error,
-                                                message: "Error creating image pyramid."
+                                                message: "Error running onyx wsq mat pyramid vector verification."
+                                            });
+                                        } else if (result.match) {
+                                            API.utility.response(context, 200, {
+                                                fingerprintId: result.match,
+                                                success: true,
+                                                score: result.score,
+                                                message: "Found a matching fingerprintId."
                                             });
                                         } else {
-                                            var fingerprintTemplateArray = [];
-                                            imagePyramid.forEach(function (wsqImage) {
-                                                try {
-                                                    var fingerprintTemplate = Meteor.call(
-                                                        '/onyx/wsq/generateFingerprintTemplate', wsqImage);
-                                                    fingerprintTemplateArray.push(fingerprintTemplate.data);
-                                                } catch (e) {
-                                                    console.log("Error generating template from wsq image: ", e);
-                                                    return API.utility.response(context, 500, {
-                                                        error: e,
-                                                        message: "Error generating template from wsq image."
-                                                    });
-                                                }
+                                            API.utility.response(context, 200, {
+                                                success: false,
+                                                message: "No match found."
                                             });
-
-                                            var match;
-                                            for (var i = 0; i < fingerprintTemplateArray.length; i++) {
-                                                var fingerprintData = fingerprintTemplateArray[i];
-                                                try {
-                                                    console.log("Checking probe image pyramid fingerprint template at index: ", i);
-                                                    var result = Meteor.call('/onyx/vector', {
-                                                        template: fingerprintData,
-                                                        fingerprintIds: connection.data.fingerprintIds
-                                                    });
-                                                    console.log("match result: ", result);
-                                                    if (result.match) {
-                                                        match = result;
-                                                        break;
-                                                    }
-                                                } catch (e) {
-                                                    console.log("Error executing onyx vector verification: ", error);
-                                                    return API.utility.response(context, 500, {
-                                                        error: e,
-                                                        message: "Error executing onyx vector verification."
-                                                    });
-                                                }
-                                            }
-
-                                            console.log("match: ", match);
-                                            if (match) {
-                                                console.log("Found a matching fingerprint.");
-                                                return API.utility.response(context, 200, {
-                                                    fingerprintId: match.match,
-                                                    success: true,
-                                                    score: match.score,
-                                                    message: "Found a matching fingerprint."
-                                                });
-                                            } else {
-                                                console.log("No matching fingerprints");
-                                                API.utility.response(context, 200, {
-                                                    success: false,
-                                                    message: "No match found."
-                                                });
-                                            }
                                         }
                                     });
                                 }
@@ -557,54 +440,16 @@ API = {
                                         nfiqScore: result.nfiqScore
                                     });
                                 } else {
-                                    // Pyramid the image
-                                    Meteor.call('/onyx/wsq/pyramidImage', connection.data, function (error, imagePyramid) {
+                                    connection.data.wsqMat = result.wsqMat;
+
+                                    Meteor.call('/onyx/wsq/mat/pyramid/verify', connection.data, function (error, result) {
                                         if (error) {
-                                            console.log("Error running onyx identification: ", error);
                                             API.utility.response(context, 500, {
                                                 error: error,
-                                                message: "Error creating image pyramid."
+                                                message: "Error executing onyx wsq mat pyramid verification."
                                             });
                                         } else {
-                                            var fingerprintTemplateArray = [];
-                                            imagePyramid.forEach(function (wsqImage) {
-                                                try {
-                                                    var fingerprintTemplate = Meteor.call('/onyx/wsq/generateFingerprintTemplate', wsqImage);
-                                                    fingerprintTemplateArray.push(fingerprintTemplate.data);
-                                                } catch (e) {
-                                                    console.log("Error generating template from wsq image: ", e);
-                                                    return API.utility.response(context, 500, {
-                                                        error: e,
-                                                        message: "Error generating template from wsq image."
-                                                    });
-                                                }
-                                            });
-
-                                            var verifyResult = {
-                                                isVerified: false
-                                            };
-                                            for (var i = 0; i < fingerprintTemplateArray.length; i++) {
-                                                var fingerprintData = fingerprintTemplateArray[i];
-                                                try {
-                                                    var result = Meteor.call('/onyx/verify', {
-                                                        template: fingerprintData,
-                                                        fingerprintId: connection.data.fingerprintId
-                                                    });
-                                                    if (result.isVerified) {
-                                                        verifyResult.isVerified = result.isVerified;
-                                                        verifyResult.score = result.score;
-                                                        break;
-                                                    }
-                                                } catch (e) {
-                                                    console.log("Error running onyx verification: ", error);
-                                                    return API.utility.response(context, 500, {
-                                                        error: e,
-                                                        message: "Error running onyx verification."
-                                                    });
-                                                }
-                                            }
-
-                                            API.utility.response(context, 200, verifyResult);
+                                            API.utility.response(context, 200, result);
                                         }
                                     });
                                 }

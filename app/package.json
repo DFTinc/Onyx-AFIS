@@ -4,8 +4,7 @@
   "description": "A Meteor server providing an Onyx API",
   "dependencies": {
     "babel-runtime": "^6.22.0",
-    "bcrypt": "^0.8.7",
-    "onyx-node": "4.1.7"
+    "bcrypt": "^0.8.7"
   },
   "devDependencies": {},
   "scripts": {
