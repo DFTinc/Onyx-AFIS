@@ -11,5 +11,5 @@ export METEOR_SETTINGS=$(cat settings.json)
 export PORT="3030"
 export ROOT_URL="http://localhost:3030"
 export MOBILE_DDP_URL=$ROOT_URL
-export MONGO_URL="mongodb://dftadmin:I82much!@ds153719.mlab.com:53719/onyx-afis"
+export MONGO_URL="mongodb://127.0.0.1:27017/OnyxAFIS-dev"
 
