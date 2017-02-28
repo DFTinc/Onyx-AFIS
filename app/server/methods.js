@@ -14,9 +14,11 @@ Meteor.methods({
         return false;
     },
     '/onyx/enroll': function (data) {
+        console.log("Insert fingerprint");
         return Fingerprints.insert(data);
     },
     '/onyx/identify': function (data) {
+        console.log("Template identify");
         var Onyx = Meteor.npmRequire('onyx-node');
         try {
             var reqTemplate = new Onyx.FingerprintTemplate(
@@ -44,12 +46,15 @@ Meteor.methods({
                 var match = ftv.get(onyxResult.index);
                 returnResult.match = match.getCustomId();
             }
+            console.log("result: ", returnResult);
             return returnResult;
         } catch (error) {
             throw new Meteor.Error("onyx-node-error", error);
         }
     },
     '/onyx/verify': function (data) {
+        console.log("Template Verify");
+        console.log("Requested fingerprintId: ", data.fingerprintId);
         var Onyx = Meteor.npmRequire('onyx-node');
         try {
             var fingerprint = Fingerprints.findOne({_id: data.fingerprintId});
@@ -65,12 +70,16 @@ Meteor.methods({
                 console.log('Template Verified');
                 verified = true;
             }
-            return {isVerified: verified, score: onyxResult};
+            var returnResult = {isVerified: verified, score: onyxResult};
+            console.log("result: ", returnResult);
+            return returnResult;
         } catch (error) {
             throw new Meteor.Error("onyx-node-error", error);
         }
     },
     '/onyx/vector': function (data) {
+        console.log("Template Vector Verification");
+        console.log("Requested fingerprintIds: ", data.fingerprintIds);
         var Onyx = Meteor.npmRequire('onyx-node');
         try {
             var reqTemplate = new Onyx.FingerprintTemplate(
@@ -120,7 +129,7 @@ Meteor.methods({
                 nfiqScore: nfiqMetrics.nfiqScore,
                 mlpScore: nfiqMetrics.mlpScore
             };
-            console.log("image quality: ", response);
+            console.log("NFIQ Score: ", response.nfiqScore);
             return response;
         } catch (error) {
             throw new Meteor.Error("onyx-node-error", error);
@@ -177,6 +186,7 @@ Meteor.methods({
         }
     },
     '/onyx/wsq/mat/pyramid/identify': function (wsqMat) {
+        console.log("WSQ pyramidIdentify()");
         var Onyx = Meteor.npmRequire('onyx-node');
         try {
             var ftv = new Onyx.FingerprintTemplateVector();
@@ -200,12 +210,15 @@ Meteor.methods({
                 var match = ftv.get(onyxResult.index);
                 returnResult.match = match.getCustomId();
             }
+            console.log("result: ", returnResult);
             return returnResult;
         } catch (error) {
             throw new Meteor.Error("onyx-node-error", error);
         }
     },
     '/onyx/wsq/mat/pyramid/vector': function (data) {
+        console.log("WSQ Pyramid Vector Verification");
+        console.log("Requested fingerprintIds: ", data.fingerprintIds);
         var Onyx = Meteor.npmRequire('onyx-node');
         try {
             var ftv = new Onyx.FingerprintTemplateVector();
@@ -229,12 +242,15 @@ Meteor.methods({
                 var match = ftv.get(onyxResult.index);
                 returnResult.match = match.getCustomId();
             }
+            console.log("result: ", returnResult);
             return returnResult;
         } catch (error) {
             throw new Meteor.Error("onyx-node-error", error);
         }
     },
     '/onyx/wsq/mat/pyramid/verify': function (data) {
+        console.log("WSQ pyramidVerify()");
+        console.log("Requested fingerprintId: ", data.fingerprintId);
         var Onyx = Meteor.npmRequire('onyx-node');
         try {
             var fingerprint = Fingerprints.findOne({_id: data.fingerprintId});
@@ -249,7 +265,9 @@ Meteor.methods({
                 console.log('Template Verified');
                 verified = true;
             }
-            return {isVerified: verified, score: onyxScore};
+            var returnResult = {isVerified: verified, score: onyxScore};
+            console.log("result: ", returnResult);
+            return returnResult;
         } catch (error) {
             throw new Meteor.Error("onyx-node-error", error);
         }

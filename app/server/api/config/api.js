@@ -6,9 +6,11 @@ API = {
     options: {wsq: true},
     handleRequest: function (context, params, method) {
         if (params.option && !API.options[params.option]) {
+            console.log("Invalid route");
             return API.utility.response(context, 404, {message: "Invalid route"});
         }
         if (!API.resources[params.resource]) {
+            console.log("Resource not found");
             return API.utility.response(context, 404, {message: "Resource not found"});
         }
         var connection = API.connection(context.request);
@@ -25,6 +27,7 @@ API = {
     connection: function (request) {
         var getRequestContents = API.utility.getRequestContents(request);
         if (request.method === "GET") {
+            console.log("GET request rejected.");
             return {error: 401, message: "This application does not accept GET requests."};
         }
 
@@ -36,6 +39,7 @@ API = {
             delete getRequestContents.api_key;
             return {owner: validUser, data: getRequestContents};
         } else {
+            console.log("Invalid API key.");
             return {error: 401, message: "Invalid API key."};
         }
     },
@@ -73,6 +77,8 @@ API = {
     methods: {
         'enroll': {
             POST: function (context, connection) {
+                console.log("/template/enroll");
+                console.log("time: ", new Date().toISOString());
                 var hasData = API.utility.hasData(connection.data);
                 var validData = API.utility.validate(connection.data, {
                     template: String
@@ -81,7 +87,7 @@ API = {
                 if (hasData && validData && connection.data.template.length > 0) {
                     Meteor.call('/onyx/identify', connection.data, function (error, result) {
                         if (error) {
-                            console.log("Error running onyx identification: ", error);
+                            console.error("Error running onyx identification: ", error);
                             API.utility.response(context, 500, {
                                 error: error,
                                 message: "Error running onyx identification."
@@ -95,11 +101,13 @@ API = {
                         } else {
                             Meteor.call('/onyx/enroll', connection.data, function (error, result) {
                                 if (error) {
+                                    console.error("Enroll Error: ", console.log(error));
                                     API.utility.response(context, 500, {
                                         error: error,
                                         message: "Error enrolling fingerprint template."
                                     });
                                 } else {
+                                    console.log("Enrolled fingerprintId: ", result);
                                     API.utility.response(context, 200, {
                                         fingerprintId: result,
                                         success: true,
@@ -110,6 +118,7 @@ API = {
                         }
                     });
                 } else {
+                    console.log("Invalid parameters");
                     API.utility.response(context, 403, {
                         error: 403,
                         message: "POST calls must have valid fields passed in the request body in the correct formats."
@@ -128,6 +137,7 @@ API = {
                 if (hasData && validData) {
                     Meteor.call('/onyx/verify', connection.data, function (error, result) {
                         if (error) {
+                            console.error("Verify Error: ", error);
                             API.utility.response(context, 500, {
                                 error: error,
                                 message: "Error executing onyx verification."
@@ -137,6 +147,7 @@ API = {
                         }
                     });
                 } else {
+                    console.log("Invalid parameters");
                     API.utility.response(context, 403, {
                         error: 403,
                         message: "POST calls must have valid fields passed in the request body in the correct formats."
@@ -154,7 +165,7 @@ API = {
                 if (hasData && validData) {
                     Meteor.call('/onyx/identify', connection.data, function (error, result) {
                         if (error) {
-                            console.log("Error running onyx identification: ", error);
+                            console.error("Error running onyx identification: ", error);
                             API.utility.response(context, 500, {
                                 error: error,
                                 message: "Error running onyx identification."
@@ -174,6 +185,7 @@ API = {
                         }
                     });
                 } else {
+                    console.log("Invalid parameters");
                     API.utility.response(context, 403, {
                         error: 403,
                         message: "POST calls must have valid fields passed in the request body in the correct formats."
@@ -192,7 +204,7 @@ API = {
                 if (hasData && validData) {
                     Meteor.call('/onyx/vector', connection.data, function (error, result) {
                         if (error) {
-                            console.log("Error running onyx vector verification: ", error);
+                            console.error("Error running onyx vector verification: ", error);
                             API.utility.response(context, 500, {
                                 error: error,
                                 message: "Error running onyx vector verification."
@@ -212,6 +224,7 @@ API = {
                         }
                     });
                 } else {
+                    console.log("Invalid parameters");
                     API.utility.response(context, 403, {
                         error: 403,
                         message: "POST calls must have valid fields passed in the request body in the correct formats."
@@ -222,6 +235,8 @@ API = {
         'wsq': {
             'enroll': {
                 POST: function (context, connection) {
+                    console.log("/wsq/enroll");
+                    console.log("time: ", new Date().toISOString());
                     var hasData = API.utility.hasData(connection.data);
                     var validData = API.utility.validate(connection.data, {
                         "wsqImage": String
@@ -231,13 +246,14 @@ API = {
                         // Check image quality
                         Meteor.call('/onyx/wsq/image/quality', connection.data, function (error, result) {
                             if (error) {
-                                console.log("Error running onyx nfiq: ", error);
+                                console.error("Error running onyx nfiq: ", error);
                                 API.utility.response(context, 500, {
                                     error: error,
                                     message: "Error computing image NFIQ."
                                 });
                             } else {
                                 if (result.nfiqScore > 4) {
+                                    console.log("Insufficient image quality.");
                                     API.utility.response(context, 422, {
                                         message: "Insufficient image quality.",
                                         nfiqScore: result.nfiqScore
@@ -246,7 +262,7 @@ API = {
                                     var wsqMat = result.wsqMat;
                                     Meteor.call('/onyx/wsq/mat/pyramid/identify', wsqMat, function (error, result) {
                                         if (error) {
-                                            console.log("Error running onyx pyramid identification: ", error);
+                                            console.error("Error running onyx pyramid identification: ", error);
                                             API.utility.response(context, 500, {
                                                 error: error,
                                                 message: "Error running onyx pyramid identification."
@@ -276,11 +292,13 @@ API = {
                                                     template: template.data
                                                 }, function (error, result) {
                                                     if (error) {
+                                                        console.error("Enroll Error: ", error);
                                                         API.utility.response(context, 500, {
                                                             error: error,
                                                             message: "Error enrolling fingerprint template."
                                                         });
                                                     } else {
+                                                        console.log("Enrolled fingerprintId: ", result);
                                                         API.utility.response(context, 200, {
                                                             fingerprintId: result,
                                                             success: true,
@@ -295,6 +313,7 @@ API = {
                             }
                         });
                     } else {
+                        console.log("Invalid parameters");
                         API.utility.response(context, 403, {
                             error: 403,
                             message: "POST calls must have valid fields passed in the request body in the correct formats."
@@ -304,6 +323,8 @@ API = {
             },
             'identify': {
                 POST: function (context, connection) {
+                    console.log("/wsq/identify");
+                    console.log("time: ", new Date().toISOString());
                     var hasData = API.utility.hasData(connection.data);
                     var validData = API.utility.validate(connection.data, {
                         "wsqImage": String
@@ -313,13 +334,14 @@ API = {
                         // Check image quality
                         Meteor.call('/onyx/wsq/image/quality', connection.data, function (error, result) {
                             if (error) {
-                                console.log("Error running onyx nfiq: ", error);
+                                console.error("Error running onyx nfiq: ", error);
                                 API.utility.response(context, 500, {
                                     error: error,
                                     message: "Error computing image NFIQ."
                                 });
                             } else {
                                 if (result.nfiqScore > 4) {
+                                    console.log("Insufficient image quality.");
                                     API.utility.response(context, 422, {
                                         message: "Insufficient image quality.",
                                         nfiqScore: result.nfiqScore
@@ -328,7 +350,7 @@ API = {
                                     var wsqMat = result.wsqMat;
                                     Meteor.call('/onyx/wsq/mat/pyramid/identify', wsqMat, function (error, result) {
                                         if (error) {
-                                            console.log("Error running onyx pyramid identification: ", error);
+                                            console.error("Error running onyx pyramid identification: ", error);
                                             API.utility.response(context, 500, {
                                                 error: error,
                                                 message: "Error running onyx pyramid identification."
@@ -351,6 +373,7 @@ API = {
                             }
                         });
                     } else {
+                        console.log("Invalid parameters");
                         API.utility.response(context, 403, {
                             error: 403,
                             message: "POST calls must have valid fields passed in the request body in the correct formats."
@@ -360,6 +383,8 @@ API = {
             },
             'vector': {
                 POST: function (context, connection) {
+                    console.log("/wsq/vector");
+                    console.log("time: ", new Date().toISOString());
                     var hasData = API.utility.hasData(connection.data);
                     var validData = API.utility.validate(connection.data, {
                         wsqImage: String,
@@ -370,7 +395,7 @@ API = {
                         // Check image quality
                         Meteor.call('/onyx/wsq/image/quality', connection.data, function (error, result) {
                             if (error) {
-                                console.log("Error running onyx nfiq: ", error);
+                                console.error("Error running onyx nfiq: ", error);
                                 API.utility.response(context, 500, {
                                     error: error,
                                     message: "Error computing image NFIQ."
@@ -378,6 +403,7 @@ API = {
                             } else {
                                 console.log("NFIQ Score: ", result.nfiqScore);
                                 if (result.nfiqScore > 4) {
+                                    console.log("Insufficient image quality.");
                                     API.utility.response(context, 422, {
                                         message: "Insufficient image quality.",
                                         nfiqScore: result.nfiqScore
@@ -386,7 +412,7 @@ API = {
                                     connection.data.wsqMat = result.wsqMat;
                                     Meteor.call('/onyx/wsq/mat/pyramid/vector', connection.data, function (error, result) {
                                         if (error) {
-                                            console.log("Error running onyx wsq mat pyramid vector verification: ", error);
+                                            console.error("Error running onyx wsq mat pyramid vector verification: ", error);
                                             API.utility.response(context, 500, {
                                                 error: error,
                                                 message: "Error running onyx wsq mat pyramid vector verification."
@@ -409,6 +435,7 @@ API = {
                             }
                         });
                     } else {
+                        console.log("Invalid parameters");
                         API.utility.response(context, 403, {
                             error: 403,
                             message: "POST calls must have valid fields passed in the request body in the correct formats."
@@ -418,6 +445,8 @@ API = {
             },
             'verify': {
                 POST: function (context, connection) {
+                    console.log("/wsq/verify");
+                    console.log("time: ", new Date().toISOString());
                     var hasData = API.utility.hasData(connection.data);
                     var validData = API.utility.validate(connection.data, {
                         fingerprintId: String,
@@ -428,13 +457,14 @@ API = {
                         // Check image quality
                         Meteor.call('/onyx/wsq/image/quality', connection.data, function (error, result) {
                             if (error) {
-                                console.log("Error running onyx nfiq: ", error);
+                                console.error("Error running onyx nfiq: ", error);
                                 API.utility.response(context, 500, {
                                     error: error,
                                     message: "Error computing image NFIQ."
                                 });
                             } else {
                                 if (result.nfiqScore > 4) {
+                                    console.log("Insufficient image quality.");
                                     API.utility.response(context, 422, {
                                         message: "Insufficient image quality.",
                                         nfiqScore: result.nfiqScore
@@ -444,6 +474,7 @@ API = {
 
                                     Meteor.call('/onyx/wsq/mat/pyramid/verify', connection.data, function (error, result) {
                                         if (error) {
+                                            console.error("Verification Error: ", error);
                                             API.utility.response(context, 500, {
                                                 error: error,
                                                 message: "Error executing onyx wsq mat pyramid verification."
@@ -456,6 +487,7 @@ API = {
                             }
                         });
                     } else {
+                        console.log("Invalid parameters");
                         API.utility.response(context, 403, {
                             error: 403,
                             message: "POST calls must have valid fields passed in the request body in the correct formats."
